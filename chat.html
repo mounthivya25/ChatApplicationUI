@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App UI</title>
+  <style>
+    :root {
+      --bg-light: #ffffff;
+      --bg-dark: #121212;
+      --text-primary: #333333;
+      --text-secondary: #777777;
+      --accent: #4A90E2;
+      --bubble-received: #f2f3f5;
+      --bubble-sent: var(--accent);
+      --bubble-sent-text: #ffffff;
+      --radius: 16px;
+      --spacing: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      /* full height so we can split layout */
+    }
+
+    .sidebar {
+      width: 300px;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar .header {
+      padding: var(--spacing);
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .sidebar .search {
+      padding: var(--spacing);
+    }
+
+    .sidebar .search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .sidebar .chat-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .chat-list-item {
+      display: flex;
+      align-items: center;
+      padding: var(--spacing);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .chat-list-item:hover {
+      background: #fafafa;
+    }
+    .chat-list-item.active {
+      background: #f0f4ff;
+    }
+    .chat-list-item .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #ccc;
+      margin-right: var(--spacing);
+    }
+    .chat-list-item .info {
+      flex: 1;
+    }
+    .chat-list-item .info .name {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .chat-list-item .info .last-msg {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .chat-list-item .time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .chat-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-window .header {
+      padding: var(--spacing);
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .chat-window .messages {
+      flex: 1;
+      padding: var(--spacing);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 70%;
+      margin-bottom: var(--spacing);
+      display: flex;
+      align-items: flex-end;
+    }
+    .message.received {
+      align-self: flex-start;
+    }
+    .message.sent {
+      align-self: flex-end;
+    }
+
+    .message .bubble {
+      padding: 12px;
+      border-radius: var(--radius);
+      position: relative;
+    }
+    .message.received .bubble {
+      background-color: var(--bubble-received);
+      color: var(--text-primary);
+      border-bottom-left-radius: 0;
+    }
+    .message.sent .bubble {
+      background-color: var(--bubble-sent);
+      color: var(--bubble-sent-text);
+      border-bottom-right-radius: 0;
+    }
+
+    .message .timestamp {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-left: 8px;
+      margin-right: 8px;
+      align-self: flex-end;
+    }
+
+    .chat-window .input-area {
+      padding: var(--spacing);
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+    }
+    .chat-window .input-area input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-right: var(--spacing);
+    }
+    .chat-window .input-area button {
+      padding: 10px 16px;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .chat-window { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="header">Chats</div>
+    <div class="search">
+      <input type="text" placeholder="Search chats…">
+    </div>
+    <div class="chat-list">
+      <div class="chat-list-item active">
+        <div class="avatar"></div>
+        <div class="info">
+          <div class="name">Alice Smith</div>
+          <div class="last-msg">Hey, how’s it going?</div>
+        </div>
+        <div class="time">9:45 AM</div>
+      </div>
+      <div class="chat-list-item">
+        <div class="avatar"></div>
+        <div class="info">
+          <div class="name">Bob Johnson</div>
+          <div class="last-msg">Looking forward to tomorrow.</div>
+        </div>
+        <div class="time">8:10 AM</div>
+      </div>
+      <!-- more items… -->
+    </div>
+  </div>
+
+  <div class="chat-window">
+    <div class="header">Alice Smith</div>
+    <div class="messages">
+      <div class="message received">
+        <div class="bubble">Hi there! 😊</div>
+        <div class="timestamp">9:40 AM</div>
+      </div>
+      <div class="message sent">
+        <div class="bubble">Hello! How are you?</div>
+        <div class="timestamp">9:41 AM</div>
+      </div>
+      <div class="message received">
+        <div class="bubble">I’m good, thanks. What about you?</div>
+        <div class="timestamp">9:42 AM</div>
+      </div>
+      <!-- more messages… -->
+    </div>
+    <div class="input-area">
+      <input type="text" placeholder="Type a message…">
+      <button>Send</button>
+    </div>
+  </div>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App UI</title>
+  <style>
+    :root {
+      --bg-light: #ffffff;
+      --bg-dark: #121212;
+      --text-primary: #333333;
+      --text-secondary: #777777;
+      --accent: #4A90E2;
+      --bubble-received: #f2f3f5;
+      --bubble-sent: var(--accent);
+      --bubble-sent-text: #ffffff;
+      --radius: 16px;
+      --spacing: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      /* full height so we can split layout */
+    }
+
+    .sidebar {
+      width: 300px;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar .header {
+      padding: var(--spacing);
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .sidebar .search {
+      padding: var(--spacing);
+    }
+
+    .sidebar .search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .sidebar .chat-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .chat-list-item {
+      display: flex;
+      align-items: center;
+      padding: var(--spacing);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .chat-list-item:hover {
+      background: #fafafa;
+    }
+    .chat-list-item.active {
+      background: #f0f4ff;
+    }
+    .chat-list-item .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #ccc;
+      margin-right: var(--spacing);
+    }
+    .chat-list-item .info {
+      flex: 1;
+    }
+    .chat-list-item .info .name {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .chat-list-item .info .last-msg {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .chat-list-item .time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .chat-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-window .header {
+      padding: var(--spacing);
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .chat-window .messages {
+      flex: 1;
+      padding: var(--spacing);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 70%;
+      margin-bottom: var(--spacing);
+      display: flex;
+      align-items: flex-end;
+    }
+    .message.received {
+      align-self: flex-start;
+    }
+    .message.sent {
+      align-self: flex-end;
+    }
+
+    .message .bubble {
+      padding: 12px;
+      border-radius: var(--radius);
+      position: relative;
+    }
+    .message.received .bubble {
+      background-color: var(--bubble-received);
+      color: var(--text-primary);
+      border-bottom-left-radius: 0;
+    }
+    .message.sent .bubble {
+      background-color: var(--bubble-sent);
+      color: var(--bubble-sent-text);
+      border-bottom-right-radius: 0;
+    }
+
+    .message .timestamp {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-left: 8px;
+      margin-right: 8px;
+      align-self: flex-end;
+    }
+
+    .chat-window .input-area {
+      padding: var(--spacing);
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+    }
+    .chat-window .input-area input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-right: var(--spacing);
+    }
+    .chat-window .input-area button {
+      padding: 10px 16px;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .chat-window { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="header">Chats</div>
+    <div class="search">
+      <input type="text" placeholder="Search chats…">
+    </div>
+    <div class="chat-list">
+      <div class="chat-list-item active">
+        <div class="avatar"></div>
+        <div class="info">
+          <div class="name">Alice Smith</div>
+          <div class="last-msg">Hey, how’s it going?</div>
+        </div>
+        <div class="time">9:45 AM</div>
+      </div>
+      <div class="chat-list-item">
+        <div class="avatar"></div>
+        <div class="info">
+          <div class="name">Bob Johnson</div>
+          <div class="last-msg">Looking forward to tomorrow.</div>
+        </div>
+        <div class="time">8:10 AM</div>
+      </div>
+      <!-- more items… -->
+    </div>
+  </div>
+
+  <div class="chat-window">
+    <div class="header">Alice Smith</div>
+    <div class="messages">
+      <div class="message received">
+        <div class="bubble">Hi there! 😊</div>
+        <div class="timestamp">9:40 AM</div>
+      </div>
+      <div class="message sent">
+        <div class="bubble">Hello! How are you?</div>
+        <div class="timestamp">9:41 AM</div>
+      </div>
+      <div class="message received">
+        <div class="bubble">I’m good, thanks. What about you?</div>
+        <div class="timestamp">9:42 AM</div>
+      </div>
+      <!-- more messages… -->
+    </div>
+    <div class="input-area">
+      <input type="text" placeholder="Type a message…">
+      <button>Send</button>
+    </div>
+  </div>
+
+</body>
+</html>
